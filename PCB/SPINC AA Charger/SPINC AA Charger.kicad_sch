@@ -12678,7 +12678,7 @@
 		)
 		(uuid "ea4e6402-c190-4649-81c6-44a392e84033")
 	)
-	(text "R_TMR = 100k -> 2.5h max charge time\n\nR_CTST = 80k -> 100mV cell test sensitivity"
+	(text "R_TMR = 100k -> 2.5h max charge time\n\nR_CTST = 22k -> 400mV cell test sensitivity"
 		(exclude_from_sim no)
 		(at 250.952 108.966 0)
 		(effects
@@ -16109,7 +16109,7 @@
 				)
 			)
 		)
-		(property "Value" "82k"
+		(property "Value" "22k"
 			(at 228.6 114.3 90)
 			(effects
 				(font
@@ -22322,7 +22322,7 @@
 				)
 			)
 		)
-		(property "Value" "500mA"
+		(property "Value" "1A"
 			(at 86.36 29.21 90)
 			(effects
 				(font
