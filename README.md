@@ -11,7 +11,6 @@ SPINC is an Open-Source NiMH charging station that can automatically load and ej
 </div>
 
 ### Features
-* 2.8” 320x240px capacitive touchscreen
 * Fast-charges AA NiMH cells at up to 1A
 * Automatic cell loading and ejection
 * Electronic polarity-correction
