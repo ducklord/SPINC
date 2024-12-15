@@ -531,7 +531,7 @@
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "",
+      "plot": "spinc-production-esp32/",
       "pos_files": "spinc-production-esp32/",
       "specctra_dsn": "",
       "step": "../../../../Desktop/AAChargerRev2.step",
@@ -542,7 +542,7 @@
   },
   "schematic": {
     "annotate_start_num": 0,
-    "bom_export_filename": "",
+    "bom_export_filename": "spinc-production-esp32/BOM.csv",
     "bom_fmt_presets": [],
     "bom_fmt_settings": {
       "field_delimiter": ",",
@@ -630,7 +630,7 @@
           "show": false
         },
         {
-          "group_by": false,
+          "group_by": true,
           "label": "LCSC",
           "name": "LCSC",
           "show": true
@@ -712,7 +712,7 @@
   "sheets": [
     [
       "67a795c7-71c1-4a83-b6d2-c7272e071e9d",
-      "Roden"
+      "Root"
     ]
   ],
   "text_variables": {}

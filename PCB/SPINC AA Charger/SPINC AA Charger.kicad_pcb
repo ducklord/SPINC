@@ -157,7 +157,7 @@
 			(mirror no)
 			(drillshape 0)
 			(scaleselection 1)
-			(outputdirectory "")
+			(outputdirectory "spinc-production-esp32/")
 		)
 	)
 	(net 0 "")
