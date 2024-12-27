@@ -3,41 +3,91 @@
 
 #include <Arduino.h>
 #include <Adafruit_VCNL4040.h>
-#include <Servo.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SharpMem.h>
 #include <lvgl.h>
+
+#ifdef ARDUINO_ARCH_ESP32
+#include <ESP32Servo.h>
+
+typedef struct {
+     int16_t year;
+     int8_t month;
+     int8_t day;
+     int8_t dotw;
+     int8_t hour;
+     int8_t min;
+     int8_t sec;
+} datetime_t;
+
+bool rtc_set_datetime(const datetime_t *t) {
+  return true;
+}
+
+#define pin_size_t uint8_t
+#else
+#include <Servo.h>
 #include <hardware/rtc.h>
+#endif
 
 //#define DEBUGDISPLAY
 
 // Pin assignment -----------------------------------------------------------------------------------------------------------------------
 
-#define SW_A 2 // SW_2
-#define SW_B 0 // SW_1
-#define USER_LED 14 // 25 for Pico
+#ifdef ARDUINO_ARCH_ESP32
+  #define SW_A 4 // SW_2
+  #define SW_B 0 // SW_1
+  #define USER_LED 14 // 25 for Pico
 
-#define LCD_CS 1
-#define LCD_MOSI 3
-#define LCD_SCK 6
+  #define LCD_CS 5
+  #define LCD_MOSI 23
+  #define LCD_SCK 18
 
-#define SDA 4
-#define SCL 5
-#define VCN_INT 7
+  #define SDA 21
+  #define SCL 22
+  #define VCN_INT 13
 
-#define CHG_STAT 8
-#define CHG_TMR 11
+  #define CHG_STAT 27
+  #define CHG_TMR 15 //NOT CONNECTED!
 
-#define PWM_SERVO 15
+  #define PWM_SERVO 26
 
-#define HBR_AH 9
-#define HBR_AL 10
-#define HBR_BL 12
-#define HBR_BH 13
+  #define HBR_AH 16
+  #define HBR_AL 17
+  #define HBR_BL 25
+  #define HBR_BH 19
 
-#define ADC_BAT_A A0
-#define ADC_BAT_B A1
-#define ADC_TEMP_BAT A3
+  #define ADC_BAT_A 33
+  #define ADC_BAT_B 32
+  #define ADC_TEMP_BAT 34
+
+#else
+  #define SW_A 2 // SW_2
+  #define SW_B 0 // SW_1
+  #define USER_LED 14 // 25 for Pico
+
+  #define LCD_CS 1
+  #define LCD_MOSI 3
+  #define LCD_SCK 6
+
+  #define SDA 4
+  #define SCL 5
+  #define VCN_INT 7
+
+  #define CHG_STAT 8
+  #define CHG_TMR 11
+
+  #define PWM_SERVO 15
+
+  #define HBR_AH 9
+  #define HBR_AL 10
+  #define HBR_BL 12
+  #define HBR_BH 13
+
+  #define ADC_BAT_A A0
+  #define ADC_BAT_B A1
+  #define ADC_TEMP_BAT A3
+#endif
 
 // H-bridge declarations
 enum HBR_STATE {OFF, A_POS, B_POS};
@@ -271,7 +321,7 @@ static void minute_button_event_cb(lv_event_t * e)
 float getVBat(){
   float sum = 0;
   for (int i = 0; i < 16; i++) {
-    sum += 0.001 * 2 * (0.806 * analogRead(A1) - 0.806 * analogRead(A0));
+    sum += 0.001 * 2 * (0.806 * analogRead(ADC_BAT_B) - 0.806 * analogRead(ADC_BAT_A));
   }
   return sum / 16;   
 }
@@ -493,9 +543,11 @@ void setup() {
   // ADC Init
   analogReadResolution(12);
 
+#ifndef ARDUINO_ARCH_ESP32
   // RTC Init
   rtc_init();
   rtc_set_datetime(&t);
+#endif
 
   // Proximity Sensor Init
   Wire.begin();
@@ -813,6 +865,7 @@ void loop() {
     break;
   }
 
+#ifndef ARDUINO_ARCH_ESP32
   // Update the clock display
   rtc_get_datetime(&t);
   if(tOld.min != t.min || tOld.hour != t.hour){ // avoid updating the time label too often (increases FPS)
@@ -822,6 +875,7 @@ void loop() {
     lv_label_set_text_fmt(dateLabel, "%s, %d. %s", weekdays_GERMAN[t.dotw], t.day, months_GERMAN[t.month]);
   }
   tOld = t;
+#endif
 
   
   // Update LVGL UI
