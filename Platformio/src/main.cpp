@@ -9,6 +9,15 @@
 
 #ifdef ARDUINO_ARCH_ESP32
 #include <ESP32Servo.h>
+#include <WiFi.h>
+#include "time.h"
+
+const char* ssid     = "REPLACE_WITH_YOUR_SSID";
+const char* password = "REPLACE_WITH_YOUR_PASSWORD";
+
+const char* ntpServer = "pool.ntp.org";
+const long  gmtOffset_sec = 0;
+const int   daylightOffset_sec = 3600;
 
 typedef struct {
      int16_t year;
@@ -22,6 +31,27 @@ typedef struct {
 
 bool rtc_set_datetime(const datetime_t *t) {
   return true;
+}
+
+void localtime_get_datetime(datetime_t *t) {
+  struct tm timeinfo;
+  if(!getLocalTime(&timeinfo)){
+    t->year = 1900;
+    t->month = 1;
+    t->day = 1;
+    t->dotw = 1;
+    t->hour = 6;
+    t->min = 0;
+    t->sec = 0;
+  } else {
+    t->year = timeinfo.tm_year + 1900;
+    t->month = timeinfo.tm_mon + 1;
+    t->day = timeinfo.tm_mday;
+    t->dotw = timeinfo.tm_wday;
+    t->hour = timeinfo.tm_hour;
+    t->min = timeinfo.tm_min;
+    t->sec = timeinfo.tm_sec;
+  }
 }
 
 #define pin_size_t uint8_t
@@ -547,6 +577,17 @@ void setup() {
   // RTC Init
   rtc_init();
   rtc_set_datetime(&t);
+#else
+  // WiFi Init
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.println("Connecting to WiFi..");
+  }
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  localtime_get_datetime(&t);
+  WiFi.disconnect(true);
+  WiFi.mode(WIFI_OFF);
 #endif
 
   // Proximity Sensor Init
@@ -865,9 +906,12 @@ void loop() {
     break;
   }
 
-#ifndef ARDUINO_ARCH_ESP32
   // Update the clock display
+#ifdef ARDUINO_ARCH_ESP32
+  localtime_get_datetime(&t);
+#else
   rtc_get_datetime(&t);
+#endif
   if(tOld.min != t.min || tOld.hour != t.hour){ // avoid updating the time label too often (increases FPS)
     lv_label_set_text_fmt(timeLabel, "%d:%02d", t.hour, t.min);
   }
@@ -875,9 +919,7 @@ void loop() {
     lv_label_set_text_fmt(dateLabel, "%s, %d. %s", weekdays_GERMAN[t.dotw], t.day, months_GERMAN[t.month]);
   }
   tOld = t;
-#endif
 
-  
   // Update LVGL UI
   lv_timer_handler();
 }
