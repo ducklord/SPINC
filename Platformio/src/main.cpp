@@ -169,9 +169,10 @@ lv_obj_t* settingsButton;
 lv_obj_t* settingsHint;
 
 Servo servo;
-const int LowerServoLimit = 1176; // Servo position for output chute
-const int ServoContactPos = 1400; // Servo position for charging
-const int UpperServoLimit = 1677; // Servo position for input chute
+// Servo pulse duration must be between 1000 and 2000 microseconds (According to SG90 datasheet)
+const int LowerServoLimit = 1100; // Servo position for output chute
+const int ServoContactPos = 1350; // Servo position for charging
+const int UpperServoLimit = 1650; // Servo position for input chute
 int currentServoPos = LowerServoLimit;
 
 datetime_t t = {
